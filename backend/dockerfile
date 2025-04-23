@@ -1,0 +1,21 @@
+FROM python:3.11-slim
+
+WORKDIR /app
+
+# Instala dependencias del sistema
+RUN apt-get update && apt-get install -y build-essential libpq-dev curl
+
+# Usa Poetry (opcional)
+RUN curl -sSL https://install.python-poetry.org | python3 -
+ENV PATH="/root/.local/bin:$PATH"
+
+# Copia el proyecto y configura Poetry
+COPY pyproject.toml poetry.lock* ./
+RUN poetry install --no-root
+
+# Copia el resto del código
+COPY . .
+
+EXPOSE 8000
+
+CMD ["poetry", "run", "uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8000", "--reload"]
